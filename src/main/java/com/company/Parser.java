@@ -59,7 +59,7 @@ public class Parser {
         Elements results = searcher(query);
 
 
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder  = null;
 
             docBuilder = factory.newDocumentBuilder();
@@ -67,8 +67,12 @@ public class Parser {
         org.w3c.dom.Document doc = docBuilder.newDocument();
             org.w3c.dom.Element root = doc.createElement("offers");
             doc.appendChild(root);
+            int connectionAmmounts = 1;
+            int itemsGetted = 0;
         for(Element result:results){
-
+            Thread.sleep(15000);                    //15 seconds pause to avoid possible bot detection
+            connectionAmmounts=connectionAmmounts+1;
+            itemsGetted = itemsGetted+1;
             Document resultElements = Jsoup.parse(result.toString());
 
             Elements parseLinks = resultElements.select("a");
@@ -76,23 +80,23 @@ public class Parser {
 
             String parsingLink = "https://www.aboutyou.de"+href;
 
-            System.out.println(parsingLink);
-
                Document parsingGood = Jsoup
                        .connect(parsingLink)
                        .timeout(15000).get();
 
-               //Getting color from json file
+               //Getting color from json file and saving it
                 Element jsonScript = parsingGood.getElementsByAttributeValue("data-reactid","40").select("script").first();
-                String[] jsonScriptSplit = jsonScript.data().toString().split("=",2);
-                String json = jsonScriptSplit[1];
+                 String[] jsonScriptSplit = jsonScript.data().toString().split("=",2);
+
+                 String json = jsonScriptSplit[1];
                 List<String> colors = JsonPath.parse(json).read("$.adpPage.product.styles..color");
+                if(jsonScript.data().contains("")){
+                    jsonScript = parsingGood.getElementsByAttributeValue("data-reactid","38").select("script").first();  //some pages keep color and price in another tag
+                    jsonScriptSplit = jsonScript.data().toString().split("=",2);
+                     json = jsonScriptSplit[1];
 
-
-            //saving color
-
-
-
+                     colors = JsonPath.parse(json).read("$.adpPage.product.styles..color");
+                }
 
             for(String color:colors){
                 //Getting and saving product name and brand
@@ -154,9 +158,12 @@ public class Parser {
 
             Source src = new DOMSource(doc);
             Result dest = new StreamResult(new File("output.xml"));
+            aTransformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
             aTransformer.transform(src, dest);
 
             }
+            System.out.println("connections ammount "+connectionAmmounts);
+            System.out.println("iittems extracted "+ itemsGetted);
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         } catch (TransformerConfigurationException e) {
