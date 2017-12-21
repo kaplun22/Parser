@@ -24,9 +24,9 @@ import java.util.regex.Pattern;
 public class Parser {
 
 
-    public Elements searcher(String query){
-        //searching the query
-        String request = "https://www.aboutyou.de/suche?fromCategory=20201&term="+query;
+    private Elements searcher(String query){
+        //searching the items
+        String request = "https://www.aboutyou.de/suche?20201&term="+query;
 
         System.out.println("Sending request " + request );
 
@@ -36,6 +36,8 @@ public class Parser {
                     .timeout(5000).get();
 
             Elements results = connect.getElementsByAttributeValue("class","product-image loaded  ");
+
+
 
             return results;
 
