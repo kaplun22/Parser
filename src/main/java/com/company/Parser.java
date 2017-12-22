@@ -124,6 +124,11 @@ public class Parser {
                 List<String> price = JsonPath.parse(json).read("$.adpPage.product.trackingData..price");
                 gd.setPrice(price.get(0));
 
+                //Data about initial price and shipping prise are not specified on that site
+
+
+
+                //creating xml elements and sanding data to them
                 org.w3c.dom.Element offer = doc.createElement("offer");
                 root.appendChild(offer);
 
