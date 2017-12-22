@@ -71,6 +71,8 @@ public class Parser {
             doc.appendChild(root);
             int connectionAmmounts = 1;
             int itemsGetted = 0;
+
+
         for(Element result:results){
             Thread.sleep(15000);                    //15 seconds pause to avoid possible bot detection
             connectionAmmounts=connectionAmmounts+1;
@@ -86,19 +88,16 @@ public class Parser {
                        .connect(parsingLink)
                        .timeout(15000).get();
 
-               //Getting color from json file and saving it
+               //Getting color and price from json file and saving it
                 Element jsonScript = parsingGood.getElementsByAttributeValue("data-reactid","40").select("script").first();
-                 String[] jsonScriptSplit = jsonScript.data().toString().split("=",2);
+                if(jsonScript.data().contains("")){
+                    jsonScript = parsingGood.getElementsByAttributeValue("data-reactid","38").select("script").first();     //some pages keep color and price in another tag
 
+                }
+                 String[] jsonScriptSplit = jsonScript.data().toString().split("=",2);
                  String json = jsonScriptSplit[1];
                 List<String> colors = JsonPath.parse(json).read("$.adpPage.product.styles..color");
-                if(jsonScript.data().contains("")){
-                    jsonScript = parsingGood.getElementsByAttributeValue("data-reactid","38").select("script").first();  //some pages keep color and price in another tag
-                    jsonScriptSplit = jsonScript.data().toString().split("=",2);
-                     json = jsonScriptSplit[1];
 
-                     colors = JsonPath.parse(json).read("$.adpPage.product.styles..color");
-                }
 
             for(String color:colors){
                 //Getting and saving product name and brand
@@ -124,7 +123,7 @@ public class Parser {
                 List<String> price = JsonPath.parse(json).read("$.adpPage.product.trackingData..price");
                 gd.setPrice(price.get(0));
 
-                //Data about initial price and shipping prise are not specified on that site
+                //Data about initial price and shipping costs are not specified on that site
 
 
 
@@ -170,7 +169,7 @@ public class Parser {
 
             }
             System.out.println("connections ammount "+connectionAmmounts);
-            System.out.println("iittems extracted "+ itemsGetted);
+            System.out.println("ittems extracted "+ itemsGetted);
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         } catch (TransformerConfigurationException e) {
