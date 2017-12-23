@@ -1,6 +1,7 @@
 package com.company;
 
 
+import com.company.XML.XmlDocBuilder;
 import com.company.pojo.ItemData;
 import com.jayway.jsonpath.JsonPath;
 import org.jsoup.Jsoup;
@@ -60,15 +61,11 @@ public class Parser {
 
         Elements results = searcher(query);
 
+            XmlDocBuilder xmlDocBuilder = new XmlDocBuilder();
+            org.w3c.dom.Document doc =xmlDocBuilder.xmlDoc();
 
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder docBuilder  = null;
 
-            docBuilder = factory.newDocumentBuilder();
 
-        org.w3c.dom.Document doc = docBuilder.newDocument();
-            org.w3c.dom.Element root = doc.createElement("offers");
-            doc.appendChild(root);
             int connectionAmmounts = 1;
             int itemsGetted = 0;
 
@@ -124,58 +121,25 @@ public class Parser {
                 gd.setPrice(price.get(0));
 
                 //Data about initial price and shipping costs are not specified on that site
-
+                xmlDocBuilder.docElements(xmlDocBuilder.xmlDoc(),gd.getName(),gd.getBrand(),gd.getPrice(),gd.getArticleID(),gd.getDescription(),color);
 
 
                 //creating xml elements and sanding data to them
-                org.w3c.dom.Element offer = doc.createElement("offer");
-                root.appendChild(offer);
+                xmlDocBuilder.docElements(doc,gd.getName(),gd.getBrand(),gd.getPrice(),gd.getArticleID(),gd.getDescription(),color);
 
-                org.w3c.dom.Element nameEl = doc.createElement("name");
-                nameEl.appendChild(doc.createTextNode(gd.getName()));
-                offer.appendChild(nameEl);
-
-                org.w3c.dom.Element brandEl = doc.createElement("brand");
-                brandEl.appendChild(doc.createTextNode(gd.getBrand()));
-                offer.appendChild(brandEl);
-
-                org.w3c.dom.Element priceEL = doc.createElement("price");
-                priceEL.appendChild(doc.createTextNode(gd.getPrice()));
-                offer.appendChild(priceEL);
-
-                org.w3c.dom.Element artickleEl = doc.createElement("articleID");
-                artickleEl.appendChild(doc.createTextNode(gd.getArticleID()));
-                offer.appendChild(artickleEl);
-
-                org.w3c.dom.Element descrEl = doc.createElement("description");
-                descrEl.appendChild(doc.createTextNode(gd.getDescription()));
-                offer.appendChild(descrEl);
-
-                org.w3c.dom.Element colorEl = doc.createElement("color");
-                colorEl.appendChild(doc.createTextNode(color));
-                offer.appendChild(colorEl);
             }
 
+            xmlDocBuilder.buildXMLFile(doc);
 
 
-            TransformerFactory tranFactory = TransformerFactory.newInstance();
-            Transformer aTransformer = tranFactory.newTransformer();
 
-
-            Source src = new DOMSource(doc);
-            Result dest = new StreamResult(new File("output.xml"));
-            aTransformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-            aTransformer.transform(src, dest);
 
             }
             System.out.println("connections ammount "+connectionAmmounts);
             System.out.println("ittems extracted "+ itemsGetted);
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
-        } catch (TransformerConfigurationException e) {
-            e.printStackTrace();
-        } catch (TransformerException e) {
-            e.printStackTrace();
+
         }
     }
 
